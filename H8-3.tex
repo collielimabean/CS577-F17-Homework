@@ -1,0 +1,67 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+\usepackage{verbatim}
+
+\title{CS 577 HW 8, P3}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\begin{enumerate}
+    \item[3.]
+        \begin{enumerate}
+            \item
+            If the maximum flow is $f$, that means there are no possible augmented paths from source $s$ to sink $t$, according to the Ford-Fulkerson method. \\
+            
+            We can break this problem into two portions for any edge $e \in E$, relative to the flow $f$ and capacity, or weight, $w$ for any edge $e$.
+        
+            \begin{enumerate}
+                \item \textbf{Edge is "full"}:
+                If edge $e$ is "full", then $f_e = w_e$ for that edge. That is, the flow on $e$ equals the capacity or weight on $e$. Then, if $w_e'=w_e - 1$, then $f_e > w_e'$, meaning the flow of $e$ is greater than the capacity of $e$. This breaks the Ford-Fulkerson method for maximum flow, as for all edges $e \in E$, flow must be less than or equal to capacity.
+                
+                \item \textbf{Edge is not "full"}:
+                If that edge $e$ is not "full", then $f_e < c_e$, or $f_e \leq c_e - 1$. That is, the flow on $e$ is not full, or at capacity, and is therefore less than the capacity of $e$, and is less than or equal to the capacity minus 1. So $c_e' = c_e - 1$, and $f_e \leq c_e - 1 = (c_e' + 1) - 1 = c_e'$, so $f_e \leq c_e'$. This still upholds the Ford-Fulkerson method, in that the flow is less than or equal to the capacity on all edges $e \in E$. Since this still holds the Ford-Fulkerson method, and maximum flow f was already found, we do not need to do anything over to recalculate the maximum flow. \\
+        
+                Therefore, since no rules are broken for the Ford-Fulkerson method, no rearrangement or recalculation must occur to find a maximum flow. Therefore, maximum flow $f$ is still maximum flow for $w_e' = w_e - 1$.
+        
+            \end{enumerate}
+            
+            \item
+            To find an efficient algorithm to compute maximum flow $f'$, we do two main things: first decrement all flows along a path from source $s$ to sink $t$ that contains edge $e$, and second run Ford-Fulkerson method to search for an augmenting path in the residual graph, it one exists, to find the maximum flow $f'$. We consider edge $e \in E$ to be a directed edge from vertex $u$ to vertex $v$, with $u, v \in V$. More specifically, this approach is as follows:
+            
+            \begin{enumerate}
+                \item 
+                Find a path from source $s$ to vertex $u$. Do this by following the flow backwards from $u$ using DFS on incoming edges until $s$ is reached.
+                
+                \item 
+                Find a path from vertex $v$ to sink $t$. Do this by following the flow forwards from $v$ using DFS on outgoing edges until $t$ is reached.
+                
+                \item
+                Using the results from (i) and (ii), we have a path from $s \rightarrow ... \rightarrow u \rightarrow v \rightarrow ... \rightarrow t$. We decrement the flow for all edges in this path by 1 to account for the decreased capacity on the original edge $e$. This decrementing will retain the equilibrium on all nodes so that the sum of incoming edges equals the sum of outgoing edges. 
+                
+                \item
+                We now find the maximum flow. We know that the maximum flow at this point is \underline{at most} 1 less than the optimal, since the path selected to decrement may have decremented the flows to a case where an augmenting path still exists. \\
+                
+                Accordingly, we run Ford-Fulkerson method once to search for an augmenting path in the residual graph. If one exists, meaning we decremented one into existence, then running this method once will find it. This will create an accurate and optimal maximum flow $f'$. If an augmenting path does not exist, meaning our decremented path is a "minimized" path whose flows cannot be incremented, then running this method will have no affect, and the maximum flow $f'$ will be accurate and optimal after the original decrementation. 
+                
+                \item
+                We then find the maximum flow $f'$ by summing the flow on the inbound edges at vertex $t$, or by summing the flow on the output edges at vertex $s$. This will be optimal, as discussed in (iv) above. \\
+                
+            \end{enumerate}
+            We know this algorithm is linear time efficient, being $O(|V| + |E|)$. This is because the first two steps (i) and (ii), to get the path to $s$ and $t$ respectively, using DFS are each $O(|V| + |E|)$. We know step (iv) to run one iteration of the Ford-Fulkerson method is $O(|E|)$, as each augmenting path can be found in $O(|E|)$, and we are only finding one. Therefore, our complexity for this algorithm is 
+            \begin{flalign*}
+                &= O\left(|V| + |E|\right) +  O\left(|V| + |E|\right) + O\left(|E|\right) \\
+                &= O\left(|V| + |E|\right)\\
+            \end{flalign*}
+            
+        \end{enumerate}
+\end{enumerate}
+\end{document}

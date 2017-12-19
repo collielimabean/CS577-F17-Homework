@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{graphicx}
+\usepackage{cancel}
+\usepackage{verbatim}
+\usepackage[utf8]{inputenc}
+
+\title{CS 577 HW 5, P1}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[1.]
+        \begin{enumerate}
+            \item
+                Each item has a size $s_i$ and value $v_i$ where $i = \left\{1, \ldots, n\right\}$.
+                \begin{verbatim}
+function maximize_revenue(T, n, S, v, s, k)
+    # T is the cache table
+    # n is the number of items - it represents the index within the array of items
+    # S is the maximum capacity of the burglar's car
+    # v, s are the value and size arrays
+    # k tells us if we chose the current item or not
+    
+    if len(n) == 0
+        return 0
+    
+    # we've already computed this step - return it
+    if T[n][S] != null
+        return T[n][S]
+    
+    # this item can't fit - ignore it
+    if s[n] > S
+        return maximize_revenue(T, n - 1, S, v, s)
+    
+    # two choices: we take it or we dont
+    # compute both, and see which is better
+    select_this_item = v[n] + maximize_revenue(T, n - 1, S - s[n])
+    dont_select_this_item = maximize_revenue(T, n - 1, S)
+    
+    # cache value for later computations
+    if select_this_item > dont_select_this_item
+        T[n][S] = select_this_item
+        k[n][S] = true
+    else
+        T[n][S] = dont_select_this_item
+        k[n][S] = false
+    
+    return T[n][S]
+    
+# call maximize function
+max_money = maximize_revenue(T, n, S, v, s, k)
+
+# output ideal path now that k is populated
+s_prime = S
+for n_prime = n .. 1
+    if k[n_prime][s_prime] == true
+        print n_prime # take this item
+        s_prime = s_prime - s[n_prime]
+                \end{verbatim}
+
+            \item The runtime of this algorithm is $O\left(nS\right)$. Our table is a 2D array where the row
+                is of size $n$ and the columns are of size $S$. Although there are two recursive calls per function call,
+                the table prevents repeating work, thus effectively enforcing one recursive call for each unique item and
+                capacity value.
+                
+            \item \textbf{Correctness}:
+                \begin{enumerate}
+                    \item \textbf{Base Case:} $S = 0$. Regardless of $n$, the maximum value is 0.
+                    \item \textbf{Inductive Hypothesis:} If we can determine an optimal group of items to take
+                        for a capacity $S$, can we find the optimal group of items for $S + 1$?
+                    \item \textbf{Inductive Case:}
+                        For a capacity $S + 1 > S$, the algorithm computes and takes the maximum value
+                        to either select or not select item $k \leq n$. Because this computation itself
+                        relies on subproblems which are known to be optimal selections through the induction
+                        hypothesis, we know this to be optimal.
+                \end{enumerate}
+            
+        \end{enumerate}
+\end{enumerate}
+\end{document}

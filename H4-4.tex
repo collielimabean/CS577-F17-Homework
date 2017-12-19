@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{graphicx}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+
+\title{CS 577 HW 4, P4}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[4.]
+        \begin{enumerate}
+            \item The idea is to find the set of all overlapping intervals and all disjoint intervals. 
+                For any overlapping interval, only keep the overlapping part. Always keep the disjoint intervals. Continually refine until the remaining intervals are disjoint. From there, pick a point from 
+                each set to construct
+                $S$. 
+                \begin{enumerate}
+                    \item First, construct an interval tree, which is defined in CLRS 14.3. It is a red-black
+                        tree where each node represents a closed interval. In order to compare nodes
+                        against each other, we select the starting point of the interval as the key.
+                    \item Traverse to the smallest start point by continually taking the left branch on the
+                        interval tree. Initialize an additional empty interval tree.
+                    \item Begin an in-order traversal and pairwise-compare each node. Specifically, for each 
+                        node (which represents an interval), look ahead to the next node in the 
+                        in-order traversal, and add the intersecting interval of these two nodes to the 
+                        new interval tree, if any. If these nodes are disjoint, simply add both nodes
+                        (intervals) to the new interval tree. 
+                    \item Repeat this process on newly generated interval trees until the generated
+                        interval tree contains only disjoint intervals. Pick a point from each interval, 
+                        and you obtain the minimum set $S$.
+                \end{enumerate}
+            
+            \item
+                \begin{enumerate}
+                    \item Constructing an interval tree is $O\left(n \log n\right)$, because balancing
+                        the tree is $\log n$, and we have $n$ elements to insert.
+                    \item Traversing to the smallest element takes $O\left(\log n\right)$ time.
+                    \item Node comparisons for intersection against each other is $O\left(1\right)$. The in-order
+                        traversal runs in $O\left(n\right)$ time, with insertion into the new interval tree
+                        running in $O\left(\log n\right)$ time.
+                    \item The number of iterations required to arrive at the minimal set $S$ strongly depends
+                        on the input set of intervals. For example, if the original set of intervals is completely
+                        disjoint, the best case runtime for this algorithm is $O\left(n\log n\right)$ because
+                        of the cost of constructing the interval tree. On the
+                        other hand, if there are many intersections between intervals, then the number of 
+                        iterations required to get to a disjoint set of intervals is higher. On average,
+                        it is reasonable to choose $\log n$ iterations to arrive at the minimal set $S$.
+                \end{enumerate}
+                
+                Therefore, on average, the runtime for this algorithm is $O\left(\left(\log n\right) 
+                n\log n\right) = O\left(n\log^2 n\right)$.
+                
+            \item
+                \begin{enumerate}
+                    \item \textbf{Base Case:} A single interval is disjoint, therefore selecting a point
+                        from that single interval is the minimum set $S$.
+                    \item \textbf{Inductive Hypothesis: } Suppose this algorithm correctly generates
+                        the minimum set $S$ for $k$ intervals. Does this algorithm produce correct
+                        output for $k + 1$ intervals?
+                    \item \textbf{Inductive Case: }
+                        After the first reduction pass, there are two outcomes: either the $k + 1$ 
+                        intervals reduce into $k$ or fewer intervals, or all intervals are disjoint. From
+                        the inductive hypothesis, we know we can find the minimum set $S$ from the $k$ or
+                        fewer intervals. If all intervals are disjoint, we can choose any point from each
+                        interval to produce $S$.
+                \end{enumerate}
+        \end{enumerate}
+\end{enumerate}
+\end{document}

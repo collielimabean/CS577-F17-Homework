@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+\usepackage{verbatim}
+
+\title{CS 577 HW 7, P4}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[4.]
+        \begin{enumerate}
+            \item
+                \begin{verbatim}
+function find_all_shortest(G, E):
+    # G is the graph containing all the vertices
+    # E is a matrix containing the edge weights, where infinity = no connection
+
+    init shortest_path_table to be a 2D array filled with null
+
+    for each vertex v in G:
+        init dist to be an array of size |G|
+        init prev to be an array of size |G|
+        init edge to be an array of size |G|
+        dist[v] = 0
+        edge[v] = 0
+        
+        Priority-Queue-Init(Q)
+        
+        for each vertex v' in G - {v}:
+            dist[v'] = infinity
+            prev[v'] = null
+            edge[v'] = infinity
+            add v' -> Q
+            
+        while Q is not empty:
+            u = Extract-Min(Q)
+            for each neighbor n of u:
+                new_dist = dist[u] + E[u, n]
+                new_edge = edge[u] + 1
+                if new_dist < dist[n] or (new_dist == dist[n] and new_edge < edge[n]):
+                    dist[n] = new_dist
+                    edge[n] = new_edge
+                    prev[n] = u
+                    Decrease-Key(Q, n, new_dist)
+                    
+        for each v' in dist:
+            shortest_path_table[v][v'] = Reconstruct-Path(dist, prev)
+    return shortest_path_table
+                
+                \end{verbatim}
+            \item The modified Djikstra's algorithm runs in the same time as the original, $O\left(\left(|E| + |V|\right)\log V\right)$
+                because we only added a single constant time check (the edge distance tiebreaker) at the expense of additional space.
+                However, we are running Djikstra's algorithm $|V|$ times, so this ends up being $O\left(V\left(E + V\right)\log V\right)$.
+                
+            \item \textbf{Correctness: } We prove that we can find the shortest path with the minimal number of edges by induction. Note that we only need to prove the modified Djikstra's algorithm for this algorithm the be correct, as we are simply looping to obtain the shortest path for all possible pairs of vertices in the graph.
+                \begin{enumerate}
+                    \item \textbf{Base Case}: The base case is a graph with a single node, where the shortest path is empty.
+                    \item \textbf{Inductive Hypothesis: } Suppose we are able to find the shortest path for each node to another
+                    in a graph $G$ with $V$ nodes, can we find the same for a graph $G^\prime$ with $V + 1$ nodes?
+                    \item \textbf{Inductive Case: } We can assume that we have discovered and determined the shortest paths
+                    for $V$ vertices in the graph thus far, and we now need to visit vertex $V + 1$. If the path
+                    from each node going into the new vertex results in a better distance, we update our distance
+                    array to that new value, and that path will be taken. If it's the same, but has a lower
+                    edge cost, we also take that as well. 
+                \end{enumerate}
+                
+        \end{enumerate}
+\end{enumerate}
+\end{document}

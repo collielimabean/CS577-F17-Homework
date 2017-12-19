@@ -1,0 +1,78 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{graphicx}
+\usepackage{cancel}
+\usepackage{verbatim}
+\usepackage[utf8]{inputenc}
+
+\title{CS 577 HW 4, P1}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[1.]
+        \begin{enumerate}
+            \item We have an initial cost $n$ because we have to iterate over $n$ elements for the prefix sum.
+                However, this does not take into account the cost of carries. To maximize the number of carries
+                in a prefix sum for the base 10 system, we assume the set $\left\{a_1, \ldots, a_n\right\} \in
+                \left\{9\right\}$. This produces a carry for 9 out of 10 elements. However, the number of carries
+                increases logarithmically with the prefix sum, which also grows linearly with the number of elements.
+                This effectively gives a cost function of $c_1n + c_2\log n$, which is $O\left(n\right)$.
+                
+            \item To "trash" this counter, suppose we have $k < n$ consecutive $1$s to get to $c \cdot 10^i$ where $c, i 
+            \in \mathbb{N}$. We then present a sequence of $n - k$ of alternating $\left\{-1, 1\right\}$ to force
+            large ripple carries. We repeat the same analysis from part a:
+                \begin{itemize}
+                    \item We have an initial cost of $k$ to get to $c \cdot 10^i$.
+                    \item The remaining $n-k$ elements incur a cost of $n-k + \left(n - k\right)\log k$.
+                    \item Adding these two together results in a cost function resembling $n + n\log n$, which is
+                        $O\left(n\log n\right)$.
+                \end{itemize}
+                
+            \item Use one counter to add all positive inputs, and the other for all negative inputs.
+                After processing all inputs, add them together. This incurs a max of $\log n$ carries. Since
+                both counters are monotonically increasing or decreasing, as shown in part a, this is $O\left(n\right)$.
+            
+            \item
+                \begin{verbatim}
+function plus_one(cntr):
+    carry = 0
+    for i = 0 .. (cntr.digit_length - 1):
+        if cntr[i] == -1
+            cntr[i] = 0 
+            carry = 1
+        else if cntr[i] == 0
+            cntr[i] == 1
+            return
+        else if cntr[i] == 1
+            cntr[i] == -1
+            return
+            
+    cntr.add_top_digit(carry)
+            
+function minus_one(cntr):
+    curr_digit = cntr[0]
+    
+    # base case #
+    if cntr.digit_length == 0
+        return
+    
+    if curr_digit == -1:
+        cntr[0] = 1
+    else if curr_digit == 1:
+        cntr[0] = 0
+    else
+        # set lowest digit to -1, which is always true in tenary for minus 1.
+        # then recursively subtract 1 from the upper digits excluding the last digit.
+        minus_one(cntr[1 : cntr.digit_length])
+        cntr[0] = -1
+                \end{verbatim}
+        \end{enumerate}
+\end{enumerate}
+\end{document}

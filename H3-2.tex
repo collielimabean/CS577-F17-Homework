@@ -1,0 +1,209 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{graphicx}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{etoolbox}
+\usepackage{multicol}
+\makeatletter
+\patchcmd{\@verbatim}
+  {\verbatim@font}
+  {\verbatim@font\scriptsize}
+  {}{}
+\makeatother
+
+\newcommand\undermat[2]{%
+  \makebox[0pt][l]{$\smash{\underbrace{\phantom{%
+    \begin{matrix}#2\end{matrix}}}_{\text{$#1$}}}$}#2}
+    
+\title{\large CS 577 HW 3, P2}
+\author{\normalsize William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[2.]
+        \begin{enumerate}
+            \item A naive algorithm would be to start from the beginning, and count the frequency of that
+                element. This results in an $O\left(n^2\right)$ algorithm. To narrow the search space, we find
+                the majority elements of the subarrays, and then scan the parent array to determine who is
+                the true majority element, if it exists.
+            \begin{multicols}{2}
+                \begin{verbatim}
+function majority(A, start, end):
+    # "Base" case - single element only
+    if end == start
+        return A[1]
+        
+    # Divide - recur to find majority 
+    mid = ceil((end - start) / 2)
+    left_majority = majority(A, start, mid)
+    right_majority = majority(A, mid + 1, end)
+    
+    # Same majority element across both
+    # including null (absence of majority element)
+    if left_majority == right_majority
+        return left_majority
+
+    # Find count of left and right majorities compared to "parent" sub-array
+    left_majority_count = count_element(A, left_majority, start, end)
+    right_majority_count = count_element(A, right_majority, start, end)
+    
+    # If count of left or right is majority, return. Else null
+    if left_majority_count > mid
+        return left_majority
+    else if right_majority_count > mid
+        return right_majority
+    else
+        return null
+            \end{verbatim}
+            \columnbreak
+            \begin{verbatim}
+function count_element(A, element, start, end):
+    count = 0    
+    if element is null
+        return 0
+    for i from start -> end
+        if A[i] == element
+            count += 1
+    return count
+            \end{verbatim}
+        \end{multicols}
+            \textbf{Correctness:}
+            \begin{itemize}
+                \item \textbf{Base case:} For an array $A$ of size 1, the only element is the majority element.
+                \item \textbf{Inductive Hypothesis:} If the majority element is found correctly for 
+                    any array $A$ with size $\leq k$, is the majority element found correctly for an array
+                    with size $k + 1$?
+                \item \textbf{Inductive Case:} By the inductive hypothesis, we know that the majority element
+                of the left and right subarrays can be found correctly because each subarray size is approximately
+                $\frac{k}{2} < k$. If both subarrays have the same majority element, we are done. If they differ, 
+                we count the frequency of each majority element in the parent array. If either one of the
+                subarray majority elements is a majority element of the parent array, we are done. Otherwise,
+                there is no majority element, and we return null.
+            \end{itemize}
+            
+            \textbf{Running Time:} The recurrence relation is $T\left(n\right) = 2T\left(\frac{n}{2}\right) + an$,
+            where $a > 0$. The above algorithm splits into two subproblems of size $\frac{n}{2}$ each, and
+            performs linear scans when counting the elements for the left and right subarray majority
+            elements. As per the Master Theorem, we obtain that $c_{crit} = \log_2 2 = 1$ and $c = 1$ since
+            $f\left(n\right) = O\left(n\right)$. Since $c = c_{crit}$, we fall into case two. In our case, $k = 0$
+            since $f\left(n\right) = O\left(n\log^0 n\right)$. Therefore, by case 2, this algorithm has a $O\left(n^{c_{crit}}\log^{k+1} n\right) = O\left(n\log n\right)$ runtime.
+        
+            \item
+                \begin{enumerate}
+                    \item If $A$ has a majority element $i$, we can visualize the array as if it 
+                    were partitioned as such:
+                        \[
+                            \left[
+                                \begin{array}{cccc|cccc}
+                                    \undermat{\left\lfloor\frac{n}{2}\right\rfloor + 1}{i & i & \ldots & i} & \undermat{n - \left\lfloor\frac{n}{2}\right\rfloor - 1}{a  & a & \ldots & a} \\
+                                \end{array}
+                            \right]
+                        \]
+                        \hfill \break
+                        
+                        At a minimum, the majority element must have $\left\lfloor\frac{n}{2}\right\rfloor + 1$ elements. A "worst" case scenario is an array with majority element $i$ and the rest containing value $a$. \\
+                        
+                        The original array size can either be odd or even. Let's look at the two extreme
+                        cases when analyzing the even case for how elements can paired:
+                        
+                        \begin{enumerate}
+                            \item[1)]  Pair each majority element $i$ with an element $a$. \\
+                                Pairing an $i$ with an $a$ discards $\frac{n}{2} - 1$ elements, since there 
+                                are $\frac{n}{2} - 1$ $a$ elements. This results in two $i$ elements remaining.
+                                These reduce into a single $i$ element, which is a majority element.
+                            \item[2)] Pair each majority element $i$ element together, and each $a$ element together. \\
+                                Pairing $i$ elements together and $a$ elements together results in a reduced
+                                array with $\left\lceil\frac{n}{4}\right\rceil$ $i$ elements and
+                                $\left\lceil\frac{n}{4}\right\rceil - 1$ $a$ elements. 
+                                Since $\frac{n}{4} > \frac{n}{4} - 1$, $i$ is still a majority element. 
+                                In total, there are $\frac{n}{4} + \frac{n}{4} - 1 = \frac{n}{2} - 1$ 
+                                elements in the reduced array. Because $\frac{n}{4} > \frac{1}{2}(\frac{n}{2} -
+                                1)$, $i$ is  a majority element for this reduced array.
+                        \end{enumerate}
+                        
+                        \hfill \break
+                        \textbf{\textit{These two cases of extremes cover all possible pairings for an even
+                        length array.}} For each majority element $i$, we can either pair it 
+                        with another element $i$ or an element $a$. Since $i$ has greater than or equal to 
+                        half of the $n$ elements ($\frac{n}{2} + 1$ elements), 
+                        if all $n$ elements are grouped into $\frac{n}{2}$ groups of size $2$, by Pigeonhole 
+                        Principle you are guaranteed to have at least one group which contains two $i$ elements.
+                        
+                        \hfill \break
+                        Removing these two $i$ elements, we are left with $n - 2$ elements to distribute to 
+                        $\frac{n}{2} - 1$ groups of size $2$. There are now $\frac{n}{2} + 1 - 2 =  \frac{n}{2} - 1$
+                        $i$ elements and $\frac{n}{2} - 1$ $a$ elements. There is no possible arrangement of these 
+                        existing elements such that the pairs (two $i$, two $a$, or one $i$s and $a$s) 
+                        "cancel out" the guaranteed pair of $i$ elements. 
+                        
+                        \hfill \break
+                        For odd cases, the professor noted that the reduction will result in
+                        a single element remaining, and that there exists a way to have the majority
+                        element $i$ not be a majority element in the reduced array whether you drop the
+                        singleton or not. To remedy this, we select a random element $x$. 
+                        We scan the array to determine if $x$ is a majority element. 
+                        If $x$ is a majority element, then we are done - we found it in linear time.
+                        If not, we throw it away. We now have an array with length $n-1$, which is even. 
+                        For the minimum (worst) original odd-length array with a majority element $i$, there is exactly
+                        one more element $i$ than other elements. By discarding a non-majority element, 
+                        we get an even length array where there are exactly two more majority elements $i$
+                        than other elements. This case thus degenerates into the above even-length array
+                        situation, which has been proved to always result in the majority element $i$ being
+                        the majority element in the reduced array.
+                        
+                        \hfill \break
+                        Dropping a non-majority element in the odd case does not affect correctness in any
+                        way. In an odd-length array, there are $\left\lfloor\frac{n}{2}\right\rfloor + 1$ 
+                        majority elements and $\left\lfloor\frac{n}{2}\right\rfloor$ non-majority elements.
+                        If we remove a non-majority element, we can rewrite the 
+                        number of majority elements to be $\frac{n}{2} + 1$. Because $\frac{n}{2} + 1 >
+                        \frac{1}{2}\left(n - 1\right)$, the majority element is still the majority
+                        element after dropping it from the original odd-length array.
+                        
+                        \hfill \break
+                        Therefore, regardless of the grouping strategy, the majority element $i$ 
+                        will be the majority element of the reduced array.
+                        
+                    \item If the reduced array has a majority element, does the array $A$ have the 
+                        same majority element? No. For example, the array $\left[1, 1, 2, 3, 4, 5\right]$ can reduce into $\left[1\right]$. 1 is a majority element in the reduced
+                        array, but is not a majority element in $A$.
+                        
+                    \item 
+                        \begin{enumerate}
+                            \item[1)] First, check if the array size is odd. If not, go to (2).
+                                If it is, pick the first element, and determine if it is a majority element. 
+                                Do this by initializing a counter to zero, and scan the array for matches. 
+                                If the counter value is greater  than $\left\lfloor\frac{n}{2}\right\rfloor$, 
+                                we are done. If not, discard it to make the array even length.
+                            \item[2)] Now that the array has an even length, we simply pair elements and
+                                if they are the same, keep one. If they differ, toss them both. This
+                                reduces the array size by at most half. Repeat the first and second steps
+                                until the size is 1.
+                            \item[3)] The majority element will be remaining element when the array
+                                is reduced to size 1.
+                        \end{enumerate}
+                        
+                        \hfill \break
+                        The first step incurs a cost of $n$ steps. We then perform $\frac{n}{2}$ steps
+                        to reduce the array, and further reduce by half each step. This results in a 
+                        recurrence relation of:
+                        \begin{equation*}
+                            T\left(n\right) = T\left(\frac{n}{2}\right) + an
+                        \end{equation*}
+                        
+                        where $a > 0$. By the Master Theorem, $c_{crit} = \log_21 = 0$ and $c = 1$.
+                        Since $c_{crit} < c$, we fall into case 1 where the $an$ term bounds the runtime. 
+                        Since $ f\left(n\right)= an = O\left(n\right)$, this algorithm is $O\left(n\right)$.
+                \end{enumerate}
+        \end{enumerate}
+\end{enumerate}
+\end{document}
+    

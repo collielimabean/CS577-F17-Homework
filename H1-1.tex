@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage[utf8]{inputenc}
+
+\title{CS 577 HW 1, P1}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item
+        \begin{enumerate}
+            \item
+                \begin{verbatim}
+
+for j = A.length - 1 -> 1
+    key = A[j]
+    i = j + 1
+    while i <= A.length and A[i] < key
+        A[i - 1] = A[i]
+        i = i + 1
+    A[i - 1] = key
+                \end{verbatim}
+                
+            \item 
+                
+        \end{enumerate}
+        \begin{enumerate}
+        \textbf{Base case}: $n = 1$ \\
+        By definition, a single-element array is completely sorted.\\
+        
+        \textbf{Inductive Step}: \\
+        Let $k = 1$. $k = 1$ holds by Basis.\\
+        Let $k = 2$. We find that $k = 2$ holds.\\
+        
+        Assume the statement holds for $1, 2, ..., k - 1$ (Inductive Hypothesis). We need to prove the Induction Hypothesis for $k$.\\
+        
+        Since, by assumption, the statement holds for $1, 2, ..., k - 1$, this means that a sublist of $k - 1$ elements is sorted in non-decreasing order. Therefore, for a list of $k$ elements, the last $k-1$ elements are sorted, and the $k$th element exists, unsorted, at the beginning of the list. We must therefore insert the $k$th element into a sorted subset of $k-1$ elements.\\
+        
+        So the $k$th element will look for some index, $j$, such that $a_j \leq k < a_{j+1}$. Once found, $k$ will be inserted between elements $j$ and $j+1$. Since the rest of $A$ is sorted, once $k$ is inserted, all of $A$ will be sorted. Therefore, the Inductive Hypothesis is proven for $k$. By induction, this holds for $1, 2, ..., n$.\\
+        
+        In general, let $n \geq 1$ be a positive integer. If $A = (a_1, a_2, ..., a_n)$ is the input sequence of Insertion Sort, then after the $j$th loop, where $j = n, n - 1, ..., 1$, the sublist $A[j, n]$ of length $(n-j)$ is a non-decreasing permutation of the last $j$ integers of the original $A$. \\
+        
+        
+        \end{enumerate}
+\end{enumerate}
+\end{document}

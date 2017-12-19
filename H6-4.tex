@@ -1,0 +1,47 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+
+\title{CS 577 HW 6, P4}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[4.]
+        \begin{enumerate}
+            \item 
+            We know that a bipartite graph is a graph $G=(V, E)$ whose vertices can be partitioned into two disjoint sets $V = V_1 \cup V_2$ such that all edges in $E$ are between $V_1$ and $V_2$. \\
+                
+            We observe the definition that $k-coloring$ divides all vertices into $k$ color groups such that adjacent vertices must have different colors. Accordingly, if we color $V_1$ white and $V_2$ black, by the definition of $k-coloring$, or in this case $2-coloring$, we know that each adjacent vertex must be a different color, i.e. no white vertex is adjacent to another white vertex, and same for black. So each vertex from $V_1$ (white) connects to a vertex from $V_2$ (black) and vice versa. Therefore the graph must be bipartite, and further, a graph is bipartite iff it can be colored with two colors.
+                
+            \item The general approach to this algorithm is a breadth-first search to color all vertices, and if there is
+            ever a contradiction of coloring, return "no". Suppose we have two colors $C_1$ and $C_2$:
+                \begin{enumerate}[label=\arabic*.]
+                    \item Initialize an empty input queue for BFS.
+                    \item Select an initial vertex from the input graph to start the BFS coloring
+                        and color it $C_1$. Add that vertex into the input queue.
+                    \item For each vertex $v$ in the input queue, we look at each neighbor/successor/child $c$. If $c$'s color
+                        has been set, check if $v$'s color is the same as $c$'s color. If so, return "no" because
+                        we have violated the bipartitle property. If $c$ is not colored (not visited), color it to 
+                        the opposite of $v$'s color and add $c$ to the input queue.
+                    \item Once the input queue is empty, the graph will be fully colored as all reachable
+                        vertices have been visited. If there were any color contradictions, "no" would have been
+                        returned within the input queue processing. Accordingly, return the fully colored graph.
+                \end{enumerate}
+            
+            \item
+            At most 3 colors are required. By definition, a bipartite graph cannot have any odd cycles. So, if we treat all vertices involved in even cycles as a bipartite graph, this will leave one vertex that makes the odd cycle odd. Accordingly, we color this vertex the third color, and we have then successfully colored an undirected graph with exactly one cycle of odd length.
+            
+            \item
+            The same algorithm as part (b), however instead of returning "no", it would color the vertex the third color. This would only be applied to one vertex, since only one vertex is "responsible" for making the odd cycle, and therefore the algorithm would still work.
+        \end{enumerate}
+\end{enumerate}
+\end{document}

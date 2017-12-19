@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{graphicx}
+\usepackage{cancel}
+\usepackage{verbatim}
+\usepackage[utf8]{inputenc}
+
+\title{CS 577 HW 5, P4}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[4.] 
+        \begin{enumerate}
+            \item Pseudocode for this algorithm is presented below. 
+                \begin{verbatim}
+function find_path(n)
+    initialize P to be of size [n, n, n + 1] all null values
+    
+    for i = 1 .. n
+        for j = 1 .. n
+            P[i, j, 0] = {
+                set of { strings from i to itself }* + 
+                set of { strings from i directly to j }* +
+                set of { strings from j to itself }*
+            }
+    
+    for k = 1 .. n
+        for j = k .. n
+            for i = k .. n
+                P[i, j, k] = P[i, j, k - 1] + (P[i, k, k] + (P[k, k, k]*) + P[k, j, k])
+                
+    return P[1, n, n] # path     
+                \end{verbatim}
+
+            \item \textbf{Explanation:}
+                The find\_path function takes in the destination node index $n$, and creates a table
+                $P$ for caching computed values. It is a 3D array where $P\left[i, j, k\right]$ represents
+                the expression of all paths from start node $i$ to destination node $j$ that goes through
+                node of max index $k$. 
+                
+                If $k = 0$, that means $P\left[i, j, k\right]$ holds the expression of all paths
+                directly from node $i$ to $j$, including any self loops from $i$ to itself and $j$ to itself.
+                
+                We can express the path from $i$ to $j$ that goes through a node with max index $k$ in two ways:
+                    \begin{itemize}
+                        \item We go through node $k$. If we go through node $k$, we must determine the path
+                            from $i$ to $k$, the path from $j$ to $k$, and any self loops that $k$ may have. 
+                            The union of these three will result in all possible paths from $i$ to $j$ through
+                            node $k$.
+                        \item We do not go through node $k$. Thus, we can recursively call find\_path on a 
+                            node of max index $k - 1$.
+                    \end{itemize}
+                
+            \item \textbf{Correctness:}
+                \begin{enumerate}
+                    \item \textbf{Base case:} The base case is $P\left[i, j, 0\right]$, which is the expression
+                        of paths directly connecting node $i$ to $j$. As explained above, $P\left[i, j, k\right]$ 
+                        includes any self loops from $i$ to itself and $j$ to itself. This is the set of all paths
+                        from $i$ to $j$ because of their direct connection.
+                        
+                    \item \textbf{Inductive Hypothesis:} Suppose we can obtain an expression that contains all
+                        possible paths for $P\left[i, j, l\right]$, can we find the same for $P\left[i, j, 
+                        l + 1\right]$, for all $0 < i, j < n$?
+                        
+                    \item \textbf{Inductive Case:} In this $l + 1$ case, we still have two choices: we find
+                        a path that goes through the $l + 1$ node, or we do not. If we do not go through the
+                        $l + 1$ node, we know by the inductive hypothesis that the path from $i$ to $j$
+                        with a max node index of $l$ is expressible. We also know that the union of the
+                        expressions of the path from $i$ to $i + 1$, $i + 1$ self-loops, and $i + 1$ to $j$ 
+                        is expressible. Because both subproblems are expressible, we can conclude by
+                        induction that we can express all possible paths from $i$ to $j$ for any $1 < i, j \leq n$.
+                    
+                \end{enumerate}
+        \end{enumerate}
+\end{enumerate}
+\end{document}

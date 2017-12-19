@@ -1,0 +1,94 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+
+\title{CS 577 HW 2, P2}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[2.]
+        \begin{enumerate}
+            \item Given two integers $x$ and $y$, we can denote each integer as a bit array of 
+            $\left[x_{n-1}, x_{n-2}, \ldots, x_1, x_0 \right]$ and
+            $\left[y_{n-1}, y_{n-2}, \ldots, y_1, y_0 \right]$.
+            The traditional approach thus yields the following equation for $xy$:
+            
+            \begin{equation*}
+                xy = \sum\limits_{i = 0}^{n-1} \left(2^i\right)\left(x_{n\ldots0}\right)\left(y_i\right)
+            \end{equation*}
+            
+            Note that the $2^i$ term is $O\left(1\right)$, since it's just a left shift.
+            Computing the result of the $\left(x_{n\ldots0}\right)\left(y_i\right)$ term is $O\left(n\right)$
+            as you need to perform $n$ multiplications. However, we need to compute $n$ of these, since 
+            $i$ goes from $0$ to $n-1$. Thus, building the 2D bit array is $O\left(n^2\right)$.
+            
+            Let's talk about the summation operation. In the best case with no carries, the number of additions
+            we need to do is:
+            \begin{equation*}
+                1 + 2 + 3 + \ldots + n + \ldots + 3 + 2 + 1
+            \end{equation*}
+            
+            This is starting from the top bit all the way down the zeroth bit. In total, the number of bits to add,
+            at a minimum, is $\frac{2\left(n-1\right)\left(n-2\right)}{2} + n = O\left(n^2\right)$. Therefore, since both the 
+            creation of the 2D grid and the final summation is $O\left(n^2\right)$, the operation is 
+            $O\left(n^2\right)$.
+            
+            \item If we evaluate each term separately:
+                \begin{itemize}
+                    \item $x_1y_12^n$ is $T\left(\frac{n}{2}\right)$ since it's only a multiply of $n/2$-digit integers.
+                    \item $\left(x_1y_2 + x_2y_1\right)2^{n/2}$ is $2T\left(\frac{n}{2}\right) + c_1n$ since
+                        we have 2 $n/2$-digit integer multiplies and 1 addition to recombine.
+                    \item $x_2y_2$ is $T\left(\frac{n}{2}\right)$ as it is only a single multiply.
+                \end{itemize}
+            
+                Summing it up, we get a recurrence relation of:
+                \begin{equation}
+                    T\left(n\right) = 4T\left(\frac{n}{2}\right) + c_1n
+                \end{equation}
+            
+                Next, we use Master's theorem to determine the running time of this algorithm.
+                $c_{crit} = \log_2 4 = 2$. $f\left(n\right) = O\left(n\right)$.
+                
+                Because $c < c_{crit}$, we fall into case 1 and the subproblems dominate runtime.
+                Therefore, the running time of this algorithm is $O\left(n^2\right)$.
+                
+            \item Given the original expansion of:
+                \begin{equation*}
+                    xy = x_1y_12^n + \left(x_1y_2 + x_2y_1\right)2^{n/2} + x_2y_2
+                \end{equation*}
+            
+                In this equation, the four subproblems we need to compute are: $x_1y_1$, $x_1y_2$,
+                $x_2y_1$, and $x_2y_2$. Let's focus on the second group in the original expansion
+                and add a couple terms in an attempt to simplify.
+                \begin{flalign*}
+                    &2^{n/2}\left(x_1y_2 + x_2y_1 + x_1y_1 + x_2y_2 - x_1y_1 - x_2y_2\right) \\
+                    &2^{n/2}\left(\left(x_1 + x_2\right)\left(y_1 + y_2\right) - x_1y_1 - x_2y_2\right)
+                \end{flalign*}
+                
+                From this, we recombine into the general expression:
+                \begin{equation*}
+                    xy = x_1y_12^n + \left(\left(x_1 + x_2\right)\left(y_1 + y_2\right) - x_1y_1 - x_2y_2\right)2^{n/2} + x_2y_2
+                \end{equation*}
+                
+                Now there are only three quantities to compute:
+                \begin{itemize}
+                    \item $x_1y_1$
+                    \item $x_2y_2$
+                    \item $\left(x_1 + x_2\right)\left(y_1 + y_2\right)$
+                \end{itemize}
+                
+                Although we incur more addition costs, the subproblems still dominate 
+                runtime as per the master theorem.
+                This algorithm is $O\left(n^{\log_2 3}\right) = O\left(n^{1.58}\right)$. 
+            
+        \end{enumerate}
+\end{enumerate}
+\end{document}

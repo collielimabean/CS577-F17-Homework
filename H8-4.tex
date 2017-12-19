@@ -1,0 +1,132 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+\usepackage{verbatim}
+
+\title{CS 577 HW 8, P4}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\begin{enumerate}
+    \item[4.]
+        \begin{enumerate}
+        \item
+            \begin{itemize}
+                \item Societal scenario 1: A dating service, where $L = men$ and $R = women$. Each $x \in L$ and $y \in R$ ranks the group of the opposite sex. The dating service then matches pairs of men and women for optimal dating pairing. 
+                \item Societal scenario 2: A content delivery network must match the set of users $L$ to the set of 
+                    possible set of servers $R$ that can handle the request. The users prefer the servers closest
+                    to them, but the servers prefer to serve users with the lightest requests. 
+            \end{itemize}
+            
+        \item \textbf{Pseudocode:}
+            \begin{verbatim}
+Initialize all people (all x, y) to be free
+Initialize queue Q with all x
+
+while Q is not empty:
+    x = Q.pop()  
+    
+    # Proposal process
+    for each y in x's not-yet-proposed list:
+        if y is free:
+            x.partner = y
+            y.partner = x
+            break
+        else if y prefers x more than y.partner (=x')
+            x.partner = y
+            y.partner = x
+            x'.partner = null
+            Q.push(x')
+            break
+            \end{verbatim}
+        
+        \item \textbf{Proof:}
+            For each proposal process, there are three cases for the free $x$:
+            \begin{itemize}
+                \item \textbf{$y$ is free:} \\
+                $x$ and $y$ are "tentatively teamed up" and $|Q|$ is decreased by 1, since $x$ is no longer free.
+                
+                \item \textbf{$y$ is "tentatively teamed up" with some $x'$, but prefers $x$ more:} \\
+                $x$ and $y$ are "tentatively teamed up" and $|Q|$ is decreased by one, since $x$ is no longer free. However, $x'$ is freed, since $y$ was previously "tentatively teamed up" with $x'$. $x'$ gets added to $Q$, so $|Q|$ remains the same size.
+                
+                \item \textbf{$y$ is "tentatively teamed up" with some $x'$, but prefers $x'$ more:} \\
+                $x$ and $y$ are \underline{not} "tentatively teamed up" and $|Q|$ remains unchanged. $x$ remains free and $x'$ remains "tentatively teamed up" with $y$.
+                
+            \end{itemize}
+            
+            For each proposal process, $x$ is "tentatively teamed up," as either $x$ will find a free $y$ or take a different $x'$'s $y$. There will always be at least one $y$ free because the sizes of $L$ and $R$ are the same (they are $n$). So in the case that the last $x$ gets "rejected" from taking all $x'$'s $y$s, that $x$ will be assigned to its lowest preference $y$, which is the free $y$. Therefore, all $x$ are "tentatively teamed up" with some $y$.
+            
+        \item 
+        Let person $y_i$ be the person who broke up with person $x$, and let them be the $i^{th}$ person in $x$'s preference list. To prove this algorithm, we need to show that at any iteration, for any $x$, anyone above or equal to the person $y_i$ in $x$'s preferences is unavailable for $x$ to be "tentatively teamed up" with. By showing this, we can say that $x$ in the original algorithm will simply iterate unnecessarily over the first $i$ $y$ elements (only to be rejected for all), and the $i+1^{th}$ $y$ is the first $y$ to which $x$ can be "tentatively teamed up" with. The slightly-modified algorithm will begin iteration on the $i+1^{th}$ element, since the $i^{th}$ $y$ broke up with it, in which case these two algorithms are equivalent. \\
+        
+        We prove this by induction. Let $y_i$ be as defined above and work toward $y_1$. We define "availability" as whether a given $y$ is available for an $x$.
+        \begin{enumerate}
+            \item \textbf{Base Case:} Check $y_i$ for availability. Trivial, as $x$ was just rejected by $y_i$, per above. 
+            
+            \item \textbf{Inductive Step:} 
+            Our Inductive Hypothesis is that for any $k + 1$, where $1 < k < k + 1 \leq i$, if $y_{k + 1}$ holds, then $y_{k}$ also holds. We see that there are various cases in which $x$ can encounter any $y_k$: 
+            
+            \begin{enumerate}
+                \item $y_k$ is free: this is not possible, as $x$ would've taken $y_k$ because $y_i < y_k$ in $x$'s preference list.
+                \item $y_k$ is not free:
+                \begin{itemize}
+                    \item $y_k$ rejected $x$
+                    \item $y_k$ left $x$ for some other $x'$
+                \end{itemize}
+            \end{enumerate}
+            
+            In either of the above two bullets, there is no way $x$ can get back with $y_k$. This proves by 
+                induction that for all $k \leq i$, $x$ cannot get together with $y_k$.
+            
+        \end{enumerate}
+        
+        \item Let our measure $m$ be the following:
+            \begin{flalign*}
+                m = \sum_{i = 1}^{|Q|} \left|x_i\text{'s not-yet-proposed list}\right|
+            \end{flalign*}
+        
+            To prove termination, the measure $m$ must decrease to zero.
+            For each iteration of the algorithm, $x$ is either 
+                \begin{itemize}
+                    \item \textbf{$y$ is free:} $x$ is assigned to $y$, and is removed from the queue $Q$. Because
+                        x's not-proposed-yet list must contain at least one element (worst case is when $y$ is the
+                        last person $x$ can team up with). Therefore, removing $x$ from $Q$ will decrease the measure
+                        by at least 1.
+                            
+                    \item \textbf{$y$ rejects $x$:} $x$ moves on to the next $y$ in its preference list, so the measure
+                        decreases.
+                    \item \textbf{$y$ takes $x$ and puts $x'$ into $Q$:} The size of $x'$ preference list must 
+                        be smaller than $x$'s preference list.
+                \end{itemize}
+            We see that these cases make measure $m$ non-decreasing and it will therefore decrease to 0.
+        
+        \item Given the initial algorithm, we know that for each $x$ in the queue $Q$, $x$ has the possibility to ask 
+        to team up with every element in $y$. This iteration through x's preference list is $O\left(x\right)$, and the 
+        size of $Q$ is also $O\left(x\right)$. This algorithm is therefore $O\left(x \times x\right) = 
+        O\left(x^2\right)$.
+        
+        \item Correctness
+            \begin{itemize}
+                \item \textbf{Invariant:} This is the measure found in part e.
+                \item \textbf{Initialization:} We initialize the queue $Q$ to hold all $x$ elements, and each $x$ and
+                    $y$ elements to be free.
+                \item \textbf{Maintenance:} For some iteration $k < x^2$, we have found the best pairings
+                    for all $(x, y)$ who have been paired.   \\
+                    
+                    We know from (d) that for any $x$ that has been paired so far, elements $y_1$ to $y_i$ in its preference list are unavailable, as $y_i$ is the $i^{th}$ $y$ that most recently "broke up" with $x$. This makes the $i + 1^{th}$ $y$ the best available $y$ for $x$. From a $y$'s perspective, if $y$ is free, then any assignment is better than being free. If $y$ is assigned to some $x'$, then it will choose the better of $x$ or $x'$, guaranteeing that $y$ will select its best available option.\\
+                    
+                    Therefore, both $x$ and $y$ will have their best options assigned, which satisfies the previously specified goal.
+                    
+                \item \textbf{Termination:} This algorithm terminates as found in part e.
+            \end{itemize}
+        \end{enumerate}
+\end{enumerate}
+\end{document}

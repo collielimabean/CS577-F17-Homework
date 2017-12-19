@@ -1,0 +1,109 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+
+\title{CS 577 HW 6, P2}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[2.]
+        \begin{enumerate}
+            \item Because we are proving existence, we need to only provide a single example. \\
+            
+            If the weights are all distinct, and there is more than one minimum width spanning tree, this means there exists multiple trails over all vertices which still include the max weight edge $w_{max}$, though none that do not include $w_{max}$.\\
+            
+            For instance, suppose there are $n$ vertices labeled $\left\{1, 2, ..., n\right\}$. Suppose vertices $1$ to $n - 1$ are cyclic, and for all vertices, vertex $i - 1$ is connected to vertex $i$ on edge $(i - 1, i)$. Further, suppose vertex $n$ is weakly-connected with the rest of the graph, meaning the edge $(n - 1, n)$ is the only edge keeping vertex $n$ connected to the graph.\\
+            
+            Assume that the edge weight for each edge is determined by the lowest vertex's number, e.g. edge $(1, 2)$ has weight $1$. As such, all edges are distinct and edge $(n - 1, n)$ is the most "expensive" edge. Since vertex $n$ is only connected to vertex $n - 1$, edge $(n - 1, n)$ is required to be included in the spanning tree, and since it is the largest weight, it is the width of the spanning tree.\\
+            
+            Since the rest of the graph is cyclic, there are multiple permutations of the $n - 2$ edges which connect all $n - 1$ vertices from vertices $\left\{1, ..., n - 1\right\}$. As such, there are multiple graphs which have the largest weight being edge $(n - 1, n)$, and further, there are multiple minimum width spanning trees.\\
+            
+            Therefore, even though all weights are distinct, there can be more than one minimum width spanning tree.\\
+            
+            \item
+                \begin{enumerate}
+                    \item \textbf{Proof}: To prove this, for any weight $t$, we must prove that a minimum width spanning
+                    tree is is comprised of minimum width spanning trees of its connected components $C_1, C_2, ..., C_s$,
+                    optionally plus some additional edges from $E$ that are not yet a part of any connected component
+                    $C_i$. Essentially, we must prove that a minimum width spanning tree is comprised of smaller, minimum width
+                    spanning subtrees $T_i$. Inherently, then, if the the subtrees do not comprise the entire minimum width
+                    spanning tree $T$, additional edges from $E$ also comprise the minimum width spanning tree $T$. \\
+                    
+                    We use a loop invariant to prove this. Our loop invariant is the fact that after each successive $t$, for $0 \leq t \leq max \hspace{2pt} weight$, each connected component $C_i$ contains a minimum width spanning tree for that current sets of vertices (i.e. $T_i$ for each $C_i$). \\
+                    
+                    \item \textbf{Initialization}: $t = 0$ is a minimum width spanning tree, since no edges are included,
+                    thus this must be a minimum width spanning tree.
+                    
+                    \item \textbf{Maintenance}: For any given $t$, at the end of a loop, each set of connected components is a vertex set containing a minimum width spanning tree in $G_{\leq t}$ for the current $t$. That is, we will always have a minimum width spanning tree for the current set of vertices in the sub graph for the current $t$. If these connected components are not themselves connected, there will therefore exist some edges in the set $E$ that will connect these components, and thus, create a minimum width spanning tree $T$.
+                    
+                    \item \textbf{Termination}: Once the entire graph is connected (i.e. there is only one connected
+                    component), the entire graph will also be a minimum width spanning tree, so no additional edges will be
+                    required to make a minimum width spanning tree $T$.
+                    
+                    \item \textbf{The number of edges to be added} 
+                        $= \left(s + \left|\text{unclaimed vertices}\right|\right) - 1$, where $s$ is the number of
+                        connected components.
+                \end{enumerate}
+                
+            
+            \item
+                \begin{verbatim}
+function minWidthSpanningTree():
+    # Make a min heap, ordered according to edge weight. Reference pg. 505 of textbook
+    minHeap = Make-Heap()
+    List<Edge> minWidthSpanning = {}
+
+    while minHeap is not empty:
+        # Extract-Min(H), pg. 505 of textbook
+        edge (u,v) = Extract-Min(minHeap)
+        
+        # If both vertices are marked as "visited"
+        if visited(u) and visited(v):
+            # Find-Set(x), pg. 562 of book
+            if Find-Set(u) != Find-Set(v):
+                # Union(H1, H2), pg. 505 of textbook
+                Union(u, v)
+                
+                # Add edge to minWidthSpanning
+                minWidthSpanning.add(e)
+        else:
+            # Mark vertices u and v as "visited"
+            visit(u)
+            visit(v)
+            
+            # Union(H1, H2), pg. 505 of textbook
+            Union(u, v)
+            minWidthSpanning.add(e)
+        
+        # Avoids unnecessary computations
+        if size of minWidthSpanning == n - 1:
+            break
+                \end{verbatim}
+            
+                \begin{enumerate}
+                    \item \textbf{Proof}: We use a loop invariant to prove this psuedocode. Our loop invariant is the fact that after each successive $t$, the current set of vertices is a minimum width spanning tree for those current sets of vertices.
+                    
+                    \item \textbf{Initialization}: Beginning with 0 edges, no edges are included, thus this must be a minimum width spanning tree.
+                    
+                    \item \textbf{Maintenance}: At the end of a loop, each set of connected components is a vertex set of a minimum width spanning tree in $G_{\leq t}$ for the current $t$. That is, we will always have a minimum width spanning tree for the current set of vertices in the sub graph for the current $t$
+                    
+                    \item \textbf{Termination}: Once the entire graph is connected (i.e. there is only one connected component), the entire graph will also be a minimum width spanning tree.\\
+                \end{enumerate}
+            
+                \textbf{Running Time}: 
+                \begin{flalign*}
+                    Running \hspace{2pt} Time &= O\left(Make-Heap\right) + O\left(|E| \times \left(O\left(Find-Set\right) + O\left(Union\right) \right) \right) \\
+                    &= O\left(n\log n\right) + O\left(|E| \times \left(Find-Set + Union\right)\right)\\
+                \end{flalign*}
+            
+        \end{enumerate}
+\end{enumerate}
+\end{document}

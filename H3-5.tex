@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{graphicx}
+\usepackage{cancel}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+
+\hypersetup{
+    colorlinks,
+    breaklinks,
+    urlcolor=blue,
+    linkcolor=blue
+}
+
+
+\title{CS 577 HW 3, P5}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[5.]
+        \begin{enumerate}
+            \item We first create the algorithm. Let $U$ be the universal set of size $n$, due to the $n$ nodes or vertices of our input graph $G$. We make a universal hash function by first creating our universal collection of hash functions $H$. Let $H$ be a universal collection of the set of all hash functions from $U$ to $\left\{0, 1, \ldots, m - 1\right\}$. In our case, $m = 2$, so we map $U$ to $\left\{0, 1\right\}$. We choose our $H$ as follows: pick $p = |U|$ to be prime. If $|U|$ is not prime, find the prime $p$ that is slightly larger than $|U|$, since we know $n < p < 2n$ by Bertrand's Theorem. \\
+            
+            So we assume $p$ is prime, $a \in \left\{0, \ldots, p-1 \right\}$, and $b \in \left\{1, \ldots, p-1 \right\}$. For every pair $(a,b)$, let
+            \begin{flalign*}
+                h_{ab}\left(k\right) &= \left(ak + b \mod p \right) \mod m \\
+                &= \left(ak + b \mod p \right) \mod 2
+            \end{flalign*}
+            
+            be a hash function from $U$ to $\left\{0, 1\right\}$. So $H = \left\{h_{ab} : a \in \left\{0, \ldots, p-1 \right\}, b \in \left\{1, \ldots, p-1 \right\} \right\}$, and $H$ contains $p (p-1)$ functions due to the $p$ possible elements for $a$ and the $p-1$ possible elements for $b$. Pick an $a$ and $b$ from their respective sets. This gives you a randomized hash function $h(k)$. \\
+            
+            This algorithm fundamentally splits the nodes into two partitions according to the hash function $h(k)$. This is similar to the "monkey" in class, which coin flipped for each node to be assigned into one of two partitions. Similarly, by splitting into two partitions through our hash function, we can say that this algorithm achieves a cut size in expectation of at least 50\% of the maximum possible. Specifically, this can be shown below in part (b) below. \\
+            
+            \item To determine the expected value for this algorithm, we define a random variable
+            $X_i$ with value 0 if node $i$ is in the left side and 1 if node $i$ is in the right side. 
+            This can be written as:
+            \begin{flalign*}
+                E\left(x_i\right) &= \sum_i{Pr\left(X = x_i\right)}x_i \\
+                &= P\left(X=0\right)\times 0 + P\left(X = 1\right) \times 1 \\
+                &= \frac{1}{2}\left(0\right) + \frac{1}{2}\left(1\right) \\
+                &= \frac{1}{2}
+            \end{flalign*}
+            
+            
+            \item There are a polynomial number of hash functions, so we can improve the 
+                algorithm by hashing the entire graph through every single possible hash function.
+                The above algorithm specifies that we select a prime $p$ greater than or equal to $\left|G\right|$. So as $\left|G\right|$ grows, $p$ grows linearly with it as per Bertrand's postulate. Since $\left|G\right| \leq p \leq 2\left|G\right|$, there is at most a $4\left|G\right|^2$ hash functions. Running every graph through every hash functions results in $\left|G\right| \times 4\left|G\right|^2 = O\left(|G|^3\right)$ operations. 
+                This algorithm is therefore polynomial time.
+        \end{enumerate}
+\end{enumerate}
+\end{document}

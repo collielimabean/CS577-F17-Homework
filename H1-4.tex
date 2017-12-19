@@ -1,0 +1,135 @@
+\documentclass{article}
+\usepackage[cm]{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc}
+
+\title{CS 577 HW 1, P4}
+\author{William Jen, Matt Henricks}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+    \item[4]
+        \begin{enumerate}
+            \item Let $d_n$ where n $\epsilon \{ 0, 1, 2 \}$ denote a disc at each tower.
+            Each disc has a unique size, or in other words, $d_0 \neq d_1 \neq d_2$. Therefore, there
+            exists a tower with the smallest disc, let this be denoted by $d_n$. Hence, 
+            $d_{\left(n + 1\right) \bmod 3}$ must be larger than $d_n$, which means
+            that there will always be at least one legal move for any legal configuration.
+            
+            \item 
+                \textbf{Base case}: $n = 1$ \\
+                    Two moves are required to move the disc from tower 0 to tower 2. Two is finite.
+                    
+                \textbf{Inductive case}: Suppose $T(n)$ is finite. Does $T(n+1)$ hold?\\
+                If we want to move $n + 1$ discs from tower 0 to tower 2, we can break it down into two parts,
+                a group containing disc of size $1 \ldots n$ and the disc of size $n + 1$. 
+                The following moveset solves the modified Towers of Hanoi. Let $T(n)$ be the number of moves 
+                required to move $n$ discs from tower 0 to tower 2, and $S(n)$ be the number of moves required
+                to move $n$ discs from tower 0 to tower 1. 
+                \begin{itemize}
+                    \item Move the $n$ discs to tower 2, which requires $T(n)$ moves.
+                    \item Move the $n+1$ disc to tower 1.
+                    \item Move the $n$ discs to tower 0, which requires $S(n)$ moves.
+                    \item Move the $n+1$ disc to tower 2.
+                    \item Move the $n$ discs to tower 2, which requires $T(n)$ moves.
+                \end{itemize}
+                
+                Because $T(n+1)$ is a sum of all finite quantities, it is therefore finite.
+                
+            \item 
+                From part (b), the required number of moves to move $n$ discs from tower 0 to tower 2 is:
+                \begin{equation}
+                    T(n) = 2T(n-1) + S(n-1) + 2
+                \end{equation}
+                
+                In order to fully resolve equation (1), we must determine the recurrence relation for
+                $S(n)$. The fewest number of moves to transfer $n$ discs from tower 0 to 1 is:
+                \begin{itemize}
+                    \item Move the $n-1$ discs from tower 0 to tower 2, which requires $T(n-1)$ moves.
+                    \item Move the $n$ disc from tower 0 to tower 1.
+                    \item Move the $n-1$ discs from tower 2 to tower 1, which requires $T(n-1)$ moves.
+                \end{itemize}
+                
+                We therefore derive the following recurrence relation for $S(n)$:
+                \begin{equation}
+                    S(n) = 2T(n-1) + 1
+                \end{equation}
+                
+                Combining the recurrence relations found in (1) and (2), we get:
+                \begin{equation}
+                    \boxed{T(n) = 2T(n-1) + 2T(n-2) + 3}
+                \end{equation}
+                
+            \item 
+                \textbf{Base Case}: $n = 1$
+                \begin{flalign*}
+                    &T(1) = 2 \\
+                    &T(1) \stackrel{?}{\geq} \left(\sqrt{3} + 1\right)^{1 - 1} \\
+                    &2 \geq 1 \hspace{5pt} \checkmark
+                \end{flalign*}
+                
+                \textbf{Inductive Case}: Suppose $T(k) \geq \left(\sqrt{3} + 1\right)^{k - 1}$
+                for some $k > 1$. Does $T(k + 1)$ hold? 
+                \begin{flalign*}
+                    &T(k + 1) = 2T((k + 1) - 1) + 2T((k + 1) - 2) + 3 \stackrel{?}{\geq} \left(\sqrt{3} + 1\right)^{k}\\
+                    &2\left(\sqrt{3} + 1\right)^{k - 1} + 2\left(\sqrt{3} + 1\right)^{k - 2} + 3 \stackrel{?}{\geq} \left(\sqrt{3} + 1\right)^{k}  \\
+                    &2\left(\sqrt{3} + 1\right)^{k - 2}\left[\sqrt{3} + 1 + 1\right] + 3 \stackrel{?}{\geq} \left(\sqrt{3} + 1\right)^{k}  \\
+                    &\left(2\sqrt{3} + 4\right)\left(\sqrt{3} + 1\right)^{k - 2} + 3 \stackrel{?}{\geq} \left(\sqrt{3} + 1\right)^{k} \\
+                    &3 \stackrel{?}{\geq} \left(\sqrt{3} + 1\right)^{k} - \left(2\sqrt{3} + 4\right)\left(\sqrt{3} + 1\right)^{k - 2} \\
+                    &3 \stackrel{?}{\geq} \left(\sqrt{3} + 1\right)^{k - 2} \cancelto{0}{\left(\left(\sqrt{3} + 1\right)^2 - \left(2\sqrt{3} + 4\right)\right)} \\
+                    &3 \geq 0 \hspace{5pt} \checkmark
+                \end{flalign*}
+                
+                We can therefore conclude by induction that $T(n) \geq \left(\sqrt{3} + 1\right)^{n - 1}$.
+                
+            \item We can use the annihilator method to determine the upper bound. Given the recurrence relation
+            in (3), we rearrange and simplify as follows: 
+                \begin{flalign*}
+                    &T(n) - 2T(n-1) - 2T(n-2) = 3 \\
+                    &(\textbf{E}^2 - 2\textbf{E} - 2)(\textbf{E} - 3) = 0 \\
+                    &(\textbf{E} - (1 + \sqrt{3}))(\textbf{E} - (1 - \sqrt{3}))(\textbf{E} - 3) = 0
+                 \end{flalign*}
+            
+                Converting from the annihilator back to a regular function, we get:
+                \begin{equation*}
+                    T(n) = \alpha 3^n + \beta (1 + \sqrt{3})^n + \delta (1 - \sqrt{3})^n \text{ for some } \alpha, \beta, \delta \hspace{5pt} \epsilon \hspace{5pt} \mathbb{R}
+                \end{equation*}
+            
+                A guess for an upper bound for $T(n)$ could be $3^n$, since that is the largest growing term.
+                
+                \textbf{Base Case}: $n = 1$
+                \begin{flalign*}
+                    &T(1) = 2 \\
+                    &T(1) \stackrel{?}{\leq} 3^n \\
+                    &2 \leq 3 \hspace{5pt} \checkmark
+                \end{flalign*}
+                
+                \textbf{Inductive Case}: Suppose $T(k) \leq 3^k$
+                for some $k > 1$. Does $T(k + 1)$ hold? 
+                \begin{flalign*}
+                    &T(k + 1) \stackrel{?}{\leq} 3^{k+1} \\
+                    &T(k + 1) = 2T(k) + 2T(k-1) + 3 \\
+                    &2\left(3^k\right) + 2\left(3^{k-1}\right) + 3 \stackrel{?}{\leq}  3^{k+1} \\
+                    &2\left(3^k + 3^{k-1}\right) + 3 \stackrel{?}{\leq} 3^{k+1} \\
+                    &2\left(3^{k-1}\right)\left(3 + 1\right) + 3 \stackrel{?}{\leq} 3^{k+1}\\
+                \end{flalign*}
+                
+                We finally arrive at the following inequality:
+                \begin{equation}
+                    8\left(3^{k-1}\right) + 3 \stackrel{?}{\leq}  9\left(3^{k-1}\right) 
+                \end{equation}
+                
+                If we solve for the condition where both sides are equal, we find that Equation (4) holds for all $k \ge 2$.
+                
+                Since $k = 1$ was proven true in the base case, we have proven that $3^n$
+                is an upper bound for $T(n)$ for all $ k > 0$.
+        \end{enumerate}
+\end{enumerate}
+\end{document}
+ 
